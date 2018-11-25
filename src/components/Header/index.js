@@ -13,7 +13,7 @@ const Header = () => {
       <Link to="/">
         <img src={appLogo} alt="app logo" />
       </Link>
-      <div class="right-links">
+      <div className="right-links">
         <a href="/network">
           <img src={graphImage} alt="network graph" />
         </a>

@@ -14,21 +14,30 @@ class App extends Component {
 
   fetchJSON = async url => {
     const response = await fetch(url);
-    return await response.json();
+    try {
+        return await response.json();
+    } catch (err) {
+        console.log(err);
+        return undefined
+    }
   };
 
   componentDidMount = async () => {
-    // return only 1 object from the API
-    const DNA_C_DATA =
-      "https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.herokuapp.com/client-health/3c:97:0e:da:3c:65";
+    const topology = await this.fetchJSON("https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.herokuapp.com/topology");
+
+    const clients = topology.nodes
+        .filter(n => n.nodeType === "HOST" && n.additionalInfo && n.additionalInfo.macAddress)
+        .map(n => n.additionalInfo.macAddress)
+        .map(mac => "https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.herokuapp.com/client-health/" + mac);
 
     const MOCK_DATA_URL =
       "https://gist.githubusercontent.com/ashleynguci/5fd6c84358844f9ac50f713b039bad8f/raw/0e1b2b19f0c79488b22d5326078e2b5206f2c48b/mock.json";
-    const urlsArray = [MOCK_DATA_URL, DNA_C_DATA];
+
+    const urlsArray = [MOCK_DATA_URL].concat(clients);
     const promiseArray = urlsArray.map(url => this.fetchJSON(url));
     const dataArray = await Promise.all(promiseArray);
 
-    const devices = [...dataArray[0], dataArray[1]];
+    const devices = [...dataArray[0], ...dataArray.slice(1)].filter(d => d !== undefined);
 
     this.setState({
       devices: devices,
