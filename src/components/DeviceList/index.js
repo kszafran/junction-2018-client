@@ -5,7 +5,7 @@ import "./index.css";
 const DeviceList = ({ devices }) => {
   return (
     <React.Fragment>
-      <div className="title">Device list</div>
+      <div className="title">Device List</div>
       <div className="list-title">
         <div className="name">Device Name</div>
         <div className="status">Status</div>
