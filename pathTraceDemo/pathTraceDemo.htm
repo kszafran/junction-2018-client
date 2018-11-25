@@ -117,14 +117,15 @@
 <script src="d3.min.js"></script>
 <script>
 
+    const TRACE_SUCCESS_COLOR = "#00b8ff";
+    const TRACE_FAILURE_COLOR = "#ff4b4b";
+
     const LINK_WIDTH = 5;
     const LINK_WIDTH_BOLD = 10;
     const STROKE_COLOR = "#ccc";
-    const STROKE_COLOR_TRACED = "#00b8ff";
     const CIRCLE_STROKE = "1.5px";
     const CIRCLE_STROKE_TRACED = "3px";
     const CIRCLE_COLOR = "#fff";
-    const CIRCLE_COLOR_TRACED = STROKE_COLOR_TRACED;
     const RADIUS = 10;
     const RADIUS_BOLD = 13;
 
@@ -210,6 +211,8 @@
 
         function pathTrace() {
             var pathIps = [];
+            var start = startNode;
+            var end = endNode;
             d3.json("https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.herokuapp.com/path-trace?source=" + startNode + "&dest=" + endNode, function (error, graph_1) {
 
                 if (graph_1 != null) {
@@ -222,7 +225,7 @@
                     snackbar(successMessage, "Path trace successful");
                     link.style("stroke", function (l) {
                         if ((pathIps.indexOf(l.source.ip) > -1) && (pathIps.indexOf(l.target.ip) > -1)) {
-                            return STROKE_COLOR_TRACED;
+                            return TRACE_SUCCESS_COLOR;
                         } else {
                             return STROKE_COLOR;
                         }
@@ -236,12 +239,19 @@
                     });
 
                     node.select("circle").style("stroke", function(n) {
-                        return pathIps.indexOf(n.ip) > -1 ? CIRCLE_COLOR_TRACED : CIRCLE_COLOR;
+                        return pathIps.indexOf(n.ip) > -1 ? TRACE_SUCCESS_COLOR : CIRCLE_COLOR;
                     }).style("stroke-width", function(n) {
                         return pathIps.indexOf(n.ip) > -1 ? CIRCLE_STROKE_TRACED : CIRCLE_STROKE;
                     })
 
                 } else {
+                    console.log(startNode, endNode)
+                    node.select("circle").style("stroke", function(n) {
+                        return n.ip == start || n.ip == end ? TRACE_FAILURE_COLOR : CIRCLE_COLOR;
+                    }).style("stroke-width", function(n) {
+                        return n.ip == start || n.ip == end ? CIRCLE_STROKE_TRACED : CIRCLE_STROKE;
+                    });
+
                     try {
                         snackbar(error.target.responseText, "Path trace failed");
                     } catch (err) {
