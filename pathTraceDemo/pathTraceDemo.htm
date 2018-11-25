@@ -158,6 +158,7 @@ var endNode = "";
 
 function addPathNode(d, message) {
   if (startNode == "") {
+    clearSide();
     startNode = d.ip;
     snackbar(message + "<br> set as a start node", "Start node set")
   } else {
@@ -195,8 +196,6 @@ function pathTrace() {
       else
         return STROKE_WIDTH_DEFAULT;
    });
-
-
 
   }else{
     try {
@@ -301,4 +300,9 @@ function snackbar(message, snackbarMessage) {
   x.className = "show";
   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
+
+function clearSide() {
+  document.getElementById("side").innerHTML = "";
+}
+
 </script>
