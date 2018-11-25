@@ -3,7 +3,7 @@
 <style>
 
 .links line {
-  stroke: #999;
+  stroke: #ccc;
   stroke-opacity: 0.6;
 }
 
@@ -14,7 +14,8 @@
 
 text {
   font-family: sans-serif;
-  font-size: 10px;
+  font-size: 14px;
+  cursor: default;
 }
 
 #snackbar {
@@ -71,14 +72,13 @@ div.side {
   color: white;
   padding: 20px;
   font-weight: bold;
-} 
+}
 
 .tooltip {
   position: absolute;
-  text-align: center;
   padding: 8px;
   margin-top: -30px;
-  font: 10px sans-serif;
+  font: 14px sans-serif;
   background: rgb(241, 241, 241);
   pointer-events: none;
   white-space: pre;
@@ -92,6 +92,11 @@ div.side {
 <div id="side" class="side" font color="grey"></div>
 <script src="d3.min.js"></script>
 <script>
+
+const STROKE_WIDTH_DEFAULT = 5;
+const STROKE_WIDTH_BOLD = 10;
+const STROKE_COLOR_DEFAULT = "#ccc";
+const RADIUS = 10;
 
 var div = d3.select("body").append("div")
     .attr("class", "tooltip")
@@ -108,7 +113,7 @@ var simulation = d3.forceSimulation()
     .force("charge", d3.forceManyBody().strength(function (d, i) {
         var a = i == 0 ? -800 : -300;
         return a;
-    }).distanceMin(70).distanceMax(250))
+    }).distanceMin(5).distanceMax(250))
     .force("center", d3.forceCenter(width / 2, height / 2));
 
 //d3.json("junction.json", function(error, graph) { //DO NOT DELETE, alternative if problems with the backend
@@ -120,16 +125,16 @@ d3.json("https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.heroku
     .selectAll("line")
     .data(graph.links)
     .enter().append("line")
-      .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+      .attr("stroke-width", STROKE_WIDTH_DEFAULT);
 
   var node = svg.append("g")
       .attr("class", "nodes")
     .selectAll("g")
     .data(graph.nodes)
-    .enter().append("g")
+    .enter().append("g");
     
   var circles = node.append("circle")
-      .attr("r", 5)
+      .attr("r", RADIUS)
       .attr("fill", function(d) { return color(d.family); })
       .call(d3.drag()
           .on("start", dragstarted)
@@ -140,11 +145,11 @@ d3.json("https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.heroku
       .text(function(d) {
         return d.label;
       })
-      .attr('x', 6)
-      .attr('y', 3);
+      .attr('x', RADIUS + 5)
+      .attr('y', RADIUS / 2);
   
   node.on("click", function(d){
-       link.style("stroke", "light-grey");
+       link.style("stroke", STROKE_COLOR_DEFAULT);
        addPathNode(d, "Label: " + d.label + "<br>IP: " + d.ip);         
   });
 
@@ -180,15 +185,15 @@ function pathTrace() {
     if ((pathIps.indexOf(l.source.ip) > - 1) && (pathIps.indexOf(l.target.ip) > - 1 )){
       return d3.color("green");
     }else{
-      return d3.color("light-grey");
+      return d3.color(STROKE_COLOR_DEFAULT);
     }
    });
 
    link.style('stroke-width', function(l) {
       if ((pathIps.indexOf(l.source.ip) > - 1) && (pathIps.indexOf(l.target.ip) > - 1 ))
-        return 5;
+        return STROKE_WIDTH_BOLD;
       else
-        return 2;
+        return STROKE_WIDTH_DEFAULT;
    });
 
 
@@ -207,15 +212,14 @@ function pathTrace() {
 node.on('mouseover', function(d) {
   div.style("display", "inline");
 
-  d3.select(this).select("text").text(function(d) {
-    //return d.label + "  " + d.ip;
-    return d.label;
-  })
+  // d3.select(this).select("text").text(function(d) {
+  //   return d.label;
+  // });
   link.style('stroke-width', function(l) {
     if (d === l.source || d === l.target)
-      return 5;
+      return STROKE_WIDTH_BOLD;
     else
-      return 2;
+      return STROKE_WIDTH_DEFAULT;
     });
   });
 
@@ -224,18 +228,18 @@ node.on('mousemove', function(d){
     div
       .text(
 `Label: ${d.label}
- ID: ${d.id}
- Software Version: ${d.softwareVersion}
- Device Type: ${d.deviceType}
- Node Type: ${d.nodeType}
- Family: ${d.family}
- Role: ${d.role}
- Role Source: ${d.roleSource}
- Platform ID: ${d.platformId}
- Latitude: ${d.additionalInfo.latitude}
- Longitude: ${d.additionalInfo.longitude}
- MacAddress: ${d.additionalInfo.macAddress}
- Site ID: ${d.additionalInfo.siteid}`)
+ID: ${d.id}
+Software Version: ${d.softwareVersion}
+Device Type: ${d.deviceType}
+Node Type: ${d.nodeType}
+Family: ${d.family}
+Role: ${d.role}
+Role Source: ${d.roleSource}
+Platform ID: ${d.platformId}
+Latitude: ${(d.additionalInfo || {}).latitude}
+Longitude: ${(d.additionalInfo || {}).longitude}
+MacAddress: ${(d.additionalInfo || {}).macAddress}
+Site ID: ${(d.additionalInfo || {}).siteid}`)
       .style("left", (d3.event.pageX + 12) + "px")
       .style("top", (d3.event.pageY + 12) + "px");
   })
@@ -249,7 +253,7 @@ node.on('mouseout', function() {
       .text(function(d) {
         return d.label;
       })
-  link.style('stroke-width', 2);
+  link.style('stroke-width', STROKE_WIDTH_DEFAULT);
   //link.style("stroke", "grey");
 });
 
