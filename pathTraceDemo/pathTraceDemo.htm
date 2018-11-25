@@ -73,12 +73,30 @@ div.side {
   font-weight: bold;
 } 
 
+.tooltip {
+  position: absolute;
+  text-align: center;
+  padding: 8px;
+  margin-top: -30px;
+  font: 10px sans-serif;
+  background: rgb(241, 241, 241);
+  pointer-events: none;
+  white-space: pre;
+  display: inline-block;
+  text-align: left;
+}
+
 </style>
 <div id="snackbar">Some text some message..</div>
 <svg width="960" height="600"></svg>
 <div id="side" class="side" font color="grey"></div>
 <script src="d3.min.js"></script>
 <script>
+
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("display", "none");
+
 var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
@@ -124,10 +142,6 @@ d3.json("https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.heroku
       })
       .attr('x', 6)
       .attr('y', 3);
-
-  node.append("title")
-      .text(function(d) { return d.label; });
-
   
   node.on("click", function(d){
        link.style("stroke", "light-grey");
@@ -191,8 +205,11 @@ function pathTrace() {
 }
 
 node.on('mouseover', function(d) {
+  div.style("display", "inline");
+
   d3.select(this).select("text").text(function(d) {
-    return d.label + "  " + d.ip;
+    //return d.label + "  " + d.ip;
+    return d.label;
   })
   link.style('stroke-width', function(l) {
     if (d === l.source || d === l.target)
@@ -202,9 +219,32 @@ node.on('mouseover', function(d) {
     });
   });
 
+node.on('mousemove', function(d){
+  d3.select(this).select("text").text(function(d) {
+    div
+      .text(
+`Label: ${d.label}
+ ID: ${d.id}
+ Software Version: ${d.softwareVersion}
+ Device Type: ${d.deviceType}
+ Node Type: ${d.nodeType}
+ Family: ${d.family}
+ Role: ${d.role}
+ Role Source: ${d.roleSource}
+ Platform ID: ${d.platformId}
+ Latitude: ${d.additionalInfo.latitude}
+ Longitude: ${d.additionalInfo.longitude}
+ MacAddress: ${d.additionalInfo.macAddress}
+ Site ID: ${d.additionalInfo.siteid}`)
+      .style("left", (d3.event.pageX + 12) + "px")
+      .style("top", (d3.event.pageY + 12) + "px");
+  })
+});
+
 
 // Set the stroke width back to normal when mouse leaves the node.
 node.on('mouseout', function() {
+  div.style("display", "none");
   node.select("text")
       .text(function(d) {
         return d.label;
