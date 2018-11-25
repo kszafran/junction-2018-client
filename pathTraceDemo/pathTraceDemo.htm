@@ -2,89 +2,113 @@
 <meta charset="utf-8">
 <style>
 
-.links line {
-  stroke: #ccc;
-  stroke-opacity: 0.6;
-}
+    .links line {
+        stroke: #ccc;
+        stroke-opacity: 0.6;
+    }
 
-.nodes circle {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
+    .nodes circle {
+        stroke: #fff;
+        stroke-width: 1.5px;
+    }
 
-text {
-  font-family: sans-serif;
-  font-size: 14px;
-  cursor: default;
-}
+    text {
+        font-family: sans-serif;
+        font-size: 14px;
+        cursor: default;
+    }
 
-#snackbar {
-    visibility: hidden;
-    min-width: 250px;
-    margin-left: -125px;
-    background-color: rgb(233, 233, 233);
-    color: rgb(145, 145, 145);
-    text-align: center;
-    border-radius: 2px;
-    padding: 16px;
-    position: fixed;
-    z-index: 1;
-    left: 50%;
-    bottom: 30px;
-    font-size: 17px;
-}
+    #snackbar {
+        visibility: hidden;
+        min-width: 250px;
+        margin-left: -125px;
+        background-color: rgb(233, 233, 233);
+        color: rgb(145, 145, 145);
+        text-align: center;
+        border-radius: 2px;
+        padding: 16px;
+        position: fixed;
+        z-index: 1;
+        left: 50%;
+        bottom: 30px;
+        font-size: 17px;
+    }
 
-#snackbar.show {
-    visibility: visible;
-    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-    animation: fadein 0.5s, fadeout 0.5s 2.5s;
-}
+    #snackbar.show {
+        visibility: visible;
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
 
-@-webkit-keyframes fadein {
-    from {bottom: 0; opacity: 0;} 
-    to {bottom: 30px; opacity: 1;}
-}
+    @-webkit-keyframes fadein {
+        from {
+            bottom: 0;
+            opacity: 0;
+        }
+        to {
+            bottom: 30px;
+            opacity: 1;
+        }
+    }
 
-@keyframes fadein {
-    from {bottom: 0; opacity: 0;}
-    to {bottom: 30px; opacity: 1;}
-}
+    @keyframes fadein {
+        from {
+            bottom: 0;
+            opacity: 0;
+        }
+        to {
+            bottom: 30px;
+            opacity: 1;
+        }
+    }
 
-@-webkit-keyframes fadeout {
-    from {bottom: 30px; opacity: 1;} 
-    to {bottom: 0; opacity: 0;}
-}
+    @-webkit-keyframes fadeout {
+        from {
+            bottom: 30px;
+            opacity: 1;
+        }
+        to {
+            bottom: 0;
+            opacity: 0;
+        }
+    }
 
-@keyframes fadeout {
-    from {bottom: 30px; opacity: 1;}
-    to {bottom: 0; opacity: 0;}
-}
+    @keyframes fadeout {
+        from {
+            bottom: 30px;
+            opacity: 1;
+        }
+        to {
+            bottom: 0;
+            opacity: 0;
+        }
+    }
 
-div.side {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 25%;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt;
-  background-color: #049FD9;
-  color: white;
-  padding: 20px;
-  font-weight: bold;
-}
+    div.side {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 25%;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10pt;
+        background-color: #049FD9;
+        color: white;
+        padding: 20px;
+        font-weight: bold;
+    }
 
-.tooltip {
-  position: absolute;
-  padding: 8px;
-  margin-top: -30px;
-  font: 14px sans-serif;
-  background: rgb(241, 241, 241);
-  pointer-events: none;
-  white-space: pre;
-  display: inline-block;
-  text-align: left;
-}
+    .tooltip {
+        position: absolute;
+        padding: 8px;
+        margin-top: -30px;
+        font: 14px sans-serif;
+        background: rgb(241, 241, 241);
+        pointer-events: none;
+        white-space: pre;
+        display: inline-block;
+        text-align: left;
+    }
 
 </style>
 <div id="snackbar">Some text some message..</div>
@@ -93,206 +117,235 @@ div.side {
 <script src="d3.min.js"></script>
 <script>
 
-const STROKE_WIDTH_DEFAULT = 5;
-const STROKE_WIDTH_BOLD = 10;
-const STROKE_COLOR_DEFAULT = "#ccc";
-const RADIUS = 10;
+    const LINK_WIDTH = 5;
+    const LINK_WIDTH_BOLD = 10;
+    const STROKE_COLOR = "#ccc";
+    const STROKE_COLOR_TRACED = "#00b8ff";
+    const CIRCLE_STROKE = "1.5px";
+    const CIRCLE_STROKE_TRACED = "3px";
+    const CIRCLE_COLOR = "#fff";
+    const CIRCLE_COLOR_TRACED = STROKE_COLOR_TRACED;
+    const RADIUS = 10;
+    const RADIUS_BOLD = 13;
 
-var div = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("display", "none");
+    var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("display", "none");
 
-var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
+    var svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
 
-var color = d3.scaleOrdinal(d3.schemeCategory20);
+    var color = d3.scaleOrdinal(d3.schemeCategory20);
 
-var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().id(function(d) { return d.id; }))
-    .force("charge", d3.forceManyBody().strength(function (d, i) {
-        return -300;
-    }).distanceMin(5).distanceMax(250))
-    .force("center", d3.forceCenter(width / 2, height / 2));
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function (d) {
+            return d.id;
+        }))
+        .force("charge", d3.forceManyBody().strength(function (d, i) {
+            return -300;
+        }).distanceMin(5).distanceMax(250))
+        .force("center", d3.forceCenter(width / 2, height / 2));
 
-//d3.json("junction.json", function(error, graph) { //DO NOT DELETE, alternative if problems with the backend
-d3.json("https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.herokuapp.com/topology", function(error, graph) {
-  if (error) throw error;
+    //d3.json("junction.json", function(error, graph) { //DO NOT DELETE, alternative if problems with the backend
+    d3.json("https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.herokuapp.com/topology", function (error, graph) {
+        if (error) throw error;
 
-  var link = svg.append("g")
-      .attr("class", "links")
-    .selectAll("line")
-    .data(graph.links)
-    .enter().append("line")
-      .attr("stroke-width", STROKE_WIDTH_DEFAULT);
+        var link = svg.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(graph.links)
+            .enter().append("line")
+            .attr("stroke-width", LINK_WIDTH);
 
-  var node = svg.append("g")
-      .attr("class", "nodes")
-    .selectAll("g")
-    .data(graph.nodes)
-    .enter().append("g");
-    
-  var circles = node.append("circle")
-      .attr("r", RADIUS)
-      .attr("fill", function(d) { return color(d.family); })
-      .call(d3.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended));
+        var node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(graph.nodes)
+            .enter().append("g");
 
-  var labels = node.append("text")
-      .text(function(d) {
-        return d.label;
-      })
-      .attr('x', RADIUS + 5)
-      .attr('y', RADIUS / 2);
-  
-  node.on("click", function(d){
-       link.style("stroke", STROKE_COLOR_DEFAULT);
-       addPathNode(d, "Label: " + d.label + "<br>IP: " + d.ip);         
-  });
+        var circles = node.append("circle")
+            .attr("r", RADIUS)
+            .attr("fill", function (d) {
+                return color(d.family);
+            })
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
 
-var startNode = "";
-var endNode = "";
+        var labels = node.append("text")
+            .text(function (d) {
+                return d.label;
+            })
+            .attr('x', RADIUS + 5)
+            .attr('y', RADIUS / 2);
 
-function addPathNode(d, message) {
-  if (startNode == "") {
-    clearSide();
-    startNode = d.ip;
-    snackbar(message + "<br> set as a start node", "Start node set")
-  } else {
-    endNode = d.ip;
-    snackbar(message + "<br> set as a end node", "End node set")
-    pathTrace();
-    startNode = "";
-    endNode = "";
-  }
-}
+        node.on("click", function (d) {
+            addPathNode(d, "Label: " + d.label + "<br>IP: " + d.ip);
+        });
 
-function pathTrace() {
-  var pathIps = [];
-  d3.json("https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.herokuapp.com/path-trace?source=" + startNode + "&dest=" + endNode, function(error, graph_1) {
+        var startNode = "";
+        var endNode = "";
 
-  if(graph_1 != null) {
-    var successMessage = "Path trace SUCCESSFUL (time " + graph_1.duration + " ms)"
-    graph_1.elements.forEach(function (arrayItem) {
-      pathIps.push(arrayItem.ip);
-      successMessage += "<br>" + arrayItem.ip + " (" + arrayItem.type + ")"
-    });
+        function addPathNode(d, message) {
+            if (startNode == "") {
+                // clear previous path trace
+                link.style("stroke", STROKE_COLOR);
+                node.select("circle")
+                    .style("stroke-width", CIRCLE_STROKE)
+                    .style("stroke", CIRCLE_COLOR);
+                document.getElementById("side").innerHTML = "";
 
-    snackbar(successMessage, "Path trace successful");
-    link.style("stroke", function(l){
-    if ((pathIps.indexOf(l.source.ip) > - 1) && (pathIps.indexOf(l.target.ip) > - 1 )){
-      return d3.color("#00b8ff");
-    }else{
-      return d3.color(STROKE_COLOR_DEFAULT);
-    }
-   });
+                startNode = d.ip;
+                snackbar(message + "<br> set as a start node", "Start node set")
+            } else {
+                endNode = d.ip;
+                snackbar(message + "<br> set as a end node", "End node set")
+                pathTrace();
+                startNode = "";
+                endNode = "";
+            }
+        }
 
-   link.style('stroke-width', function(l) {
-      if ((pathIps.indexOf(l.source.ip) > - 1) && (pathIps.indexOf(l.target.ip) > - 1 ))
-        return STROKE_WIDTH_BOLD;
-      else
-        return STROKE_WIDTH_DEFAULT;
-   });
+        function pathTrace() {
+            var pathIps = [];
+            d3.json("https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.herokuapp.com/path-trace?source=" + startNode + "&dest=" + endNode, function (error, graph_1) {
 
-  }else{
-    try {
-      snackbar(error.target.responseText, "Path trace failed");
-    }
-    catch(err) {
-      snackbar("There was a problem with accessing the topology data.", "Path trace failed");
-    }
-  }
-  });
-}
+                if (graph_1 != null) {
+                    var successMessage = "Path trace SUCCESSFUL (time " + graph_1.duration + " ms)"
+                    graph_1.elements.forEach(function (arrayItem) {
+                        pathIps.push(arrayItem.ip);
+                        successMessage += "<br>" + arrayItem.ip + " (" + arrayItem.type + ")"
+                    });
 
-node.on('mouseover', function(d) {
-  div.style("display", "inline");
-  link.style('stroke-width', function(l) {
-    if (d === l.source || d === l.target)
-      return STROKE_WIDTH_BOLD;
-    else
-      return STROKE_WIDTH_DEFAULT;
-    });
-  });
+                    snackbar(successMessage, "Path trace successful");
+                    link.style("stroke", function (l) {
+                        if ((pathIps.indexOf(l.source.ip) > -1) && (pathIps.indexOf(l.target.ip) > -1)) {
+                            return STROKE_COLOR_TRACED;
+                        } else {
+                            return STROKE_COLOR;
+                        }
+                    });
 
-node.on('mousemove', function(d){
-  var info =
-      (d.label ? `Label: ${d.label}\n` : "") +
-      (d.id ? `ID: ${d.id}\n` : "") +
-      (d.softwareVersion ? `Software Version: ${d.softwareVersion}\n` : "") +
-      (d.deviceType ? `Device Type: ${d.deviceType}\n` : "") +
-      (d.nodeType ? `Node Type: ${d.nodeType}\n` : "") +
-      (d.family ? `Family: ${d.family}\n` : "") +
-      (d.role ? `Role: ${d.role}\n` : "") +
-      (d.roleSource ? `Role Source: ${d.roleSource}\n` : "") +
-      (d.platformId ? `Platform ID: ${d.platformId}\n` : "") +
-      (d.additionalInfo ? (
-          (d.additionalInfo.latitude ? `Latitude: ${d.additionalInfo.latitude}\n` : "") +
-          (d.additionalInfo.longitude ? `Longitude: ${d.additionalInfo.longitude}\n` : "") +
-          (d.additionalInfo.macAddress ? `MacAddress: ${d.additionalInfo.macAddress}\n` : "") +
-          (d.additionalInfo.siteid ? `Site ID: ${d.additionalInfo.siteid}\n` : "")
-      ) : "");
-  div.text(info)
-      .style("left", (d3.event.pageX + 12) + "px")
-      .style("top", (d3.event.pageY + 12) + "px");
-});
+                    link.style('stroke-width', function (l) {
+                        if ((pathIps.indexOf(l.source.ip) > -1) && (pathIps.indexOf(l.target.ip) > -1))
+                            return LINK_WIDTH_BOLD;
+                        else
+                            return LINK_WIDTH;
+                    });
+
+                    node.select("circle").style("stroke", function(n) {
+                        return pathIps.indexOf(n.ip) > -1 ? CIRCLE_COLOR_TRACED : CIRCLE_COLOR;
+                    }).style("stroke-width", function(n) {
+                        return pathIps.indexOf(n.ip) > -1 ? CIRCLE_STROKE_TRACED : CIRCLE_STROKE;
+                    })
+
+                } else {
+                    try {
+                        snackbar(error.target.responseText, "Path trace failed");
+                    } catch (err) {
+                        snackbar("There was a problem with accessing the topology data.", "Path trace failed");
+                    }
+                }
+            });
+        }
+
+        node.on('mouseover', function (d) {
+            div.style("display", "inline");
+
+            node.select("circle").attr("r", function (n) {
+                return d == n ? RADIUS_BOLD : RADIUS;
+            });
+
+            link.style('stroke-width', function (l) {
+                return d === l.source || d === l.target ? LINK_WIDTH_BOLD : LINK_WIDTH;
+            });
+        });
+
+        node.on('mousemove', function (d) {
+            var info =
+                (d.label ? `Label: ${d.label}\n` : "") +
+                (d.id ? `ID: ${d.id}\n` : "") +
+                (d.softwareVersion ? `Software Version: ${d.softwareVersion}\n` : "") +
+                (d.deviceType ? `Device Type: ${d.deviceType}\n` : "") +
+                (d.nodeType ? `Node Type: ${d.nodeType}\n` : "") +
+                (d.family ? `Family: ${d.family}\n` : "") +
+                (d.role ? `Role: ${d.role}\n` : "") +
+                (d.roleSource ? `Role Source: ${d.roleSource}\n` : "") +
+                (d.platformId ? `Platform ID: ${d.platformId}\n` : "") +
+                (d.additionalInfo ? (
+                    (d.additionalInfo.latitude ? `Latitude: ${d.additionalInfo.latitude}\n` : "") +
+                    (d.additionalInfo.longitude ? `Longitude: ${d.additionalInfo.longitude}\n` : "") +
+                    (d.additionalInfo.macAddress ? `MacAddress: ${d.additionalInfo.macAddress}\n` : "") +
+                    (d.additionalInfo.siteid ? `Site ID: ${d.additionalInfo.siteid}\n` : "")
+                ) : "");
+            div.text(info)
+                .style("left", (d3.event.pageX + 12) + "px")
+                .style("top", (d3.event.pageY + 12) + "px");
+        });
 
 
 // Set the stroke width back to normal when mouse leaves the node.
-node.on('mouseout', function() {
-  div.style("display", "none");
-  link.style('stroke-width', STROKE_WIDTH_DEFAULT);
-});
+        node.on('mouseout', function (d) {
+            div.style("display", "none");
+            link.style('stroke-width', LINK_WIDTH);
+            node.select("circle").attr("r", RADIUS);
+        });
 
-  simulation
-      .nodes(graph.nodes)
-      .on("tick", ticked);
+        simulation
+            .nodes(graph.nodes)
+            .on("tick", ticked);
 
-  simulation.force("link")
-      .links(graph.links);
+        simulation.force("link")
+            .links(graph.links);
 
-  function ticked() {
-    link
-      .attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
-    node
-      .attr("transform", function(d) {
-        return "translate(" + d.x + "," + d.y + ")";
-      })
-  }
-});
+        function ticked() {
+            link
+                .attr("x1", function (d) {
+                    return d.source.x;
+                })
+                .attr("y1", function (d) {
+                    return d.source.y;
+                })
+                .attr("x2", function (d) {
+                    return d.target.x;
+                })
+                .attr("y2", function (d) {
+                    return d.target.y;
+                });
+            node
+                .attr("transform", function (d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                })
+        }
+    });
 
-function dragstarted(d) {
-  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-  d.fx = d.x;
-  d.fy = d.y;
-}
+    function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
 
-function dragged(d) {
-  d.fx = d3.event.x;
-  d.fy = d3.event.y;
-}
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
 
-function dragended(d) {
-  if (!d3.event.active) simulation.alphaTarget(0);
-  d.fx = null;
-  d.fy = null;
-}
+    function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    }
 
-function snackbar(message, snackbarMessage) {
-  document.getElementById("side").innerHTML += message + "<br><br>";
-  document.getElementById("snackbar").innerHTML = snackbarMessage;
-  var x = document.getElementById("snackbar");
-  x.className = "show";
-  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-}
-
-function clearSide() {
-  document.getElementById("side").innerHTML = "";
-}
+    function snackbar(message, snackbarMessage) {
+        document.getElementById("side").innerHTML += message + "<br><br>";
+        document.getElementById("snackbar").innerHTML = snackbarMessage;
+        var x = document.getElementById("snackbar");
+        x.className = "show";
+        setTimeout(function () {
+            x.className = x.className.replace("show", "");
+        }, 3000);
+    }
 
 </script>
