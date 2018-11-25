@@ -141,7 +141,7 @@ d3.json("https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.heroku
           .on("drag", dragged)
           .on("end", dragended));
 
-  var lables = node.append("text")
+  var labels = node.append("text")
       .text(function(d) {
         return d.label;
       })
@@ -224,7 +224,7 @@ node.on('mouseover', function(d) {
   });
 
 node.on('mousemove', function(d){
-  d3.select(this).select("text").text(function(d) {
+  d3.select(this).select("text").append(function(d) {
     div
       .text(
 `Label: ${d.label}
