@@ -5,10 +5,9 @@ import "./index.css";
 const DeviceList = ({ devices }) => {
   return (
     <React.Fragment>
-      <div className="title">Device List</div>
       <div className="list-title">
-        <div className="name">Device Name</div>
-        <div className="status">Status</div>
+        <div className="list-header name">Device Name</div>
+        <div className="list-header status">Status</div>
       </div>
       <div className="device-list">
         {devices.map((e, i) => (

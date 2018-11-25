@@ -25,6 +25,10 @@
   justify-content: center;
 }
 
+.device .detail {
+  font-size: 14px;
+}
+
 .red-color {
   color: #fb0d1c;
 }

@@ -23,7 +23,7 @@ class App extends Component {
       "https://cors-anywhere.herokuapp.com/https://peaceful-shelf-99858.herokuapp.com/client-health/3c:97:0e:da:3c:65";
 
     const MOCK_DATA_URL =
-      "https://gist.githubusercontent.com/ashleynguci/5fd6c84358844f9ac50f713b039bad8f/raw/a1cde2ca3787f31cb960c591b27f70d6634f2145/mock.json";
+      "https://gist.githubusercontent.com/ashleynguci/5fd6c84358844f9ac50f713b039bad8f/raw/0e1b2b19f0c79488b22d5326078e2b5206f2c48b/mock.json";
     const urlsArray = [MOCK_DATA_URL, DNA_C_DATA];
     const promiseArray = urlsArray.map(url => this.fetchJSON(url));
     const dataArray = await Promise.all(promiseArray);

@@ -7,6 +7,10 @@
   text-align: center;
 }
 
+.list-header {
+  font-weight: bold;
+}
+
 .list-title {
   display: grid;
   grid-template-columns: 4fr 3fr 1fr;
